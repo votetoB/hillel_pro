@@ -1,0 +1,6 @@
+<div>{{ questionnaire.name }}</div>
+<form action="questionnaire_response/{{ questionnaire.id }}/" method="POST" >
+    {% csrf_token %}
+    {{ questionnaire.form.as_p }}
+    <input type="submit" value="ANSWER">
+</form>

@@ -1,5 +1,12 @@
-if __name__ == '__main__':
-    print(3)
+class my_staticmethod:
+    ...
 
 
-print("SOMETHING ELSE12")
+class Dog:
+    @staticmethod
+    def bark():
+        print("Bark")
+
+    @my_staticmethod
+    def my_bark():
+        print("Bark")
