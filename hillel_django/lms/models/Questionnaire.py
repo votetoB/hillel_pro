@@ -11,14 +11,14 @@ class Question(models.Model):
     answer_type = models.CharField(max_length=20)  # TODO: and choices: text, integer
 
 
-class Response(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+class QuestionnaireResponse(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True)
     questionnaire = models.ForeignKey(Questionnaire, on_delete=models.PROTECT)
 
 
 class QuestionResponse(models.Model):
     question = models.ForeignKey(Question, on_delete=models.PROTECT)
-    response = models.ForeignKey(Response, on_delete=models.CASCADE)
+    response = models.ForeignKey(QuestionnaireResponse, on_delete=models.CASCADE, related_name='question_responses')
 
     answer_text = models.TextField(null=True)
     answer_integer = models.PositiveSmallIntegerField(null=True)

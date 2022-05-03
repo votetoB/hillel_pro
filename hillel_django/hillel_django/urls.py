@@ -1,26 +1,18 @@
-"""hillel_django URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include
 from lms.views.DashboardView import DashboardView
 from lms.views.QuestionnaireResponseView import QuestionnaireResponseView
+from lms import urls as lms_urls
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('lms/', include(lms_urls)),
     path('', DashboardView.as_view(), name='dashboard'),
     path('questionnaire_response/<int:questionnaire_id>/', QuestionnaireResponseView.as_view(), name='questionnaire_response'),
+    # path('dancers/', DancerView.as_view(), name='dancers'),  # GET - list of dancers. POST - create a dancer
+    # path('dancer/<uuid:dancer_id>/', DancerView.as_view(), name='dancer'),
+    # path('group/<uuid:group_id>/students/', DancerView.as_view(), name='dancers'),
+    # GET - single dancer PUT/PATCH - modify dancer. DELETE - delete dancer
 ]

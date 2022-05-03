@@ -4,7 +4,8 @@ from django.shortcuts import get_object_or_404
 from lms.models.Questionnaire import *
 from django.shortcuts import HttpResponse
 from django.db import transaction
-from django.core.paginator import Paginator
+from lms.tasks import hochu_chto_to_sdelat
+
 
 
 class QuestionnaireResponseView(View):
@@ -22,7 +23,7 @@ class QuestionnaireResponseView(View):
         # }
         questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
 
-        response = Response.objects.create(
+        response = QuestionnaireResponse.objects.create(
             user=User.objects.first(),
             questionnaire=questionnaire,
         )

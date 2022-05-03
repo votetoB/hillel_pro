@@ -59,7 +59,7 @@ class ResponseSerializer(serializers.ModelSerializer):
     question_responses = QuestionResponseSerializer(many=True)
 
     class Meta:
-        model = Response
+        model = QuestionnaireResponse
         fields = (
             'questionnaire',
             'question_responses',
