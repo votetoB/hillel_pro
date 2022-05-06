@@ -106,6 +106,7 @@ class QuestionnaireResponseSerializer(serializers.ModelSerializer):
             questionnaire_id=response.questionnaire_id,
             # required=True,
         ).values_list('id', flat=True))
+
         for question_response_data in question_responses:
             question_response_data['response'] = response.id
 
