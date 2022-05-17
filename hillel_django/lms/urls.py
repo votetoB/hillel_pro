@@ -2,6 +2,7 @@ from django.urls import path
 from lms.views.QuestionnaireResponseViewRest import QuestionnaireResponseViewRest
 from lms.views.QuestionnaireViewRest import QuestionnaireViewRest
 
+app_name = "lms"
 
 urlpatterns = [
     path('questionnaire_responses/', QuestionnaireResponseViewRest.as_view(), name='questionnaire_responses_rest'),

@@ -21,6 +21,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'questions',
+            'cached_amount_of_users',
         )
 
     def create(self, validated_data):

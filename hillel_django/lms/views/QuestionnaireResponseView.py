@@ -1,54 +1,49 @@
+import time, random
 from django.views import View
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from lms.models.Questionnaire import *
 from django.shortcuts import HttpResponse
 from django.db import transaction
-from lms.tasks import hochu_chto_to_sdelat
+from lms.tasks import hochu_chto_to_sdelat, send_email_about_new_response
+from lms.forms.QuestionnaireForm import QuestionnaireForm
+from django.utils.translation import get_language, gettext, gettext_lazy as _
 
+from django.db.models import Q, F
 
 
 class QuestionnaireResponseView(View):
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        questionnaire_id = kwargs['questionnaire_id']
+        answer = _("Dear {}, thanks for your response").format(name=request.user.username)
 
         # if self.request.is_ajax() is False:
         #     raise ValidationError("This request has to be ajax")
 
-        form_data = request.POST
-        # {
-        #     'question_123': '123123',
-        #     'question_234': 3,
-        # }
-        questionnaire = get_object_or_404(Questionnaire, id=questionnaire_id)
+        form_data = dict(**request.POST)
+        form_data['questionnaire_id'] = kwargs['questionnaire_id']
+        # User 1 ...
+        form = QuestionnaireForm(
+            data=form_data
+        )  # User 2
+        form.is_valid()
+        q_response = form.save()
 
-        response = QuestionnaireResponse.objects.create(
-            user=User.objects.first(),
-            questionnaire=questionnaire,
-        )
+        send_email_about_new_response.delay(q_response.id)
 
-        for question_string, answer in form_data.items():
-            if question_string.startswith("question") is False:
-                continue
+        if random.random() > 0.5:
+            questionnaire = q_response.questionnaire
+            questionnaire.increment_cached_amount_of_users()
+            questionnaire.amount_of_users_that_answered = F('amount_of_users_that_answered') + 1
+            questionnaire.save(update_fields=['amount_of_users_that_answered'])
+        else:
+            # second option
+            Questionnaire.objects.filter(
+                id=q_response.questionnaire_id
+            ).update(amount_of_users_that_answered=F('amount_of_users_that_answered') + 1)
 
-            question_id = question_string.split("_")[1]
-            question = get_object_or_404(Question.objects.filter(questionnaire=questionnaire), id=question_id)
+        query1 = Q(id=q_response.questionnaire_id)
+        query2 = Q(id2=q_response.questionnaire_id)
 
-            if question.answer_type == 'integer':
-                answer_kwargs = {
-                    'answer_integer': answer,  # TODO: add validation
-                }
-            else:
-                assert question.answer_type == 'text'
-                answer_kwargs = {
-                    'answer_text': answer,  # TODO: add validation
-                }
-
-            QuestionResponse.objects.create(
-                response=response,
-                question=question,
-                **answer_kwargs,
-            )
-
-        return HttpResponse("You answer has been received")
+        qs = Question.objects
+        return HttpResponse(answer)
